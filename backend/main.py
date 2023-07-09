@@ -4,7 +4,13 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from pydantic import BaseModel
+
 import uvicorn
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
 
 # MySQLデータベースへの接続
 DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/User"
@@ -16,7 +22,8 @@ app = FastAPI()
 # CORSミドルウェアの設定（必要に応じて）
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:8000", "http://localhost:3000"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -27,7 +34,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(50), unique=True, index=True)
     password = Column(String(255))
 
@@ -36,7 +43,10 @@ Base.metadata.create_all(bind=engine)
 
 # ログイン用のエンドポイント
 @app.post("/login")
-def login(username: str, password: str):
+def login(user: UserLogin): #def login(username: str, password: str): では上手くいかない
+    username = user.username
+    password = user.password
+
     db = SessionLocal()
     user = db.query(User).filter(User.username == username).first()
 

@@ -7,12 +7,11 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      console.log("111");
-      console.log(username)
+      // console.log("111");
+      // console.log(username)
       const response = await fetch("http://localhost:8000/login", {
         method: "POST",
         headers: {
-          "accept": "application/json",
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -52,7 +51,7 @@ function Login() {
         onChange={(e) => setPassword(e.target.value)}
       />
       <button onClick={handleLogin}>Login</button>
-      {error && <p>{error}</p>}
+      {error && <p>{error.message}</p>}
     </div>
   );
 }
